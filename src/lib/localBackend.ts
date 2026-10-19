@@ -84,7 +84,8 @@ export function createLocalBackend(): Backend {
     },
 
     async listProjects() {
-      const list = read<Project[]>(PROJECTS_KEY) ?? [];
+      // Projects saved before the link field existed have no link.
+      const list = (read<Project[]>(PROJECTS_KEY) ?? []).map((p) => ({ ...p, link: p.link ?? '' }));
       return [...list].sort(
         (a, b) => a.sortOrder - b.sortOrder || b.createdAt.localeCompare(a.createdAt),
       );

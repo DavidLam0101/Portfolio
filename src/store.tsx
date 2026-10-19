@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { backend, errorMessage } from './lib/backend';
 import { resizeImage } from './lib/image';
-import { defaultContent, mergeContent } from './defaults';
+import { applySeed, defaultContent, mergeContent, SEED_PROJECTS, SEED_VERSION } from './defaults';
 import type { AdminUser, Project, ProjectDraft, SiteContent } from './types';
 
 interface Toast {
@@ -43,6 +43,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [unavailableLink, setUnavailableLink] = useState<string | null>(null);
   const toastId = useRef(0);
+  // True until the old-portfolio content/projects have been saved to the backend.
+  const [needsSeed, setNeedsSeed] = useState(false);
+  const seeding = useRef(false);
+  const contentRef = useRef(content);
+  contentRef.current = content;
 
   const notify = useCallback((message: string, kind: Toast['kind'] = 'success') => {
     const id = ++toastId.current;
@@ -55,8 +60,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     Promise.all([backend.loadContent(), backend.listProjects(), backend.getUser()])
       .then(([saved, list, u]) => {
         if (cancelled) return;
-        setContent(mergeContent(saved));
-        setProjects(list);
+        const pending = (saved?.seedVersion ?? 0) < SEED_VERSION;
+        setNeedsSeed(pending);
+        // Show the upgraded content right away; it is saved on the next admin login.
+        setContent(applySeed(mergeContent(saved)));
+        setProjects(pending ? [...list, ...missingSeedProjects(list)] : list);
         setUser(u);
       })
       .catch((err) => !cancelled && notify(`Could not load content: ${errorMessage(err)}`, 'error'))
@@ -71,6 +79,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       unsubscribe();
     };
   }, [notify]);
+
+  // Persist the one-time upgrade once someone who can write is logged in.
+  useEffect(() => {
+    if (!user || !needsSeed || loading || seeding.current) return;
+    seeding.current = true;
+    (async () => {
+      const existing = await backend.listProjects();
+      const start = existing.length ? Math.max(...existing.map((p) => p.sortOrder)) + 1 : 0;
+      const missing = missingSeedProjects(existing);
+      for (let i = 0; i < missing.length; i++) {
+        const { id: _previewId, ...draft } = missing[i];
+        await backend.saveProject({ ...draft, sortOrder: start + i });
+      }
+      await backend.saveContent({ ...contentRef.current, seedVersion: SEED_VERSION });
+      setProjects(await backend.listProjects());
+      setNeedsSeed(false);
+      if (missing.length) notify(`Added ${missing.length} projects from your old portfolio`);
+    })()
+      .catch((err) => notify(`Could not save your old portfolio content: ${errorMessage(err)}`, 'error'))
+      .finally(() => {
+        seeding.current = false;
+      });
+  }, [user, needsSeed, loading, notify]);
 
   const saveContent = useCallback(async (next: SiteContent) => {
     await backend.saveContent(next);
@@ -152,6 +183,13 @@ export function useStore(): Store {
   const store = useContext(StoreContext);
   if (!store) throw new Error('useStore must be used inside <StoreProvider>');
   return store;
+}
+
+/** Old-portfolio projects not yet present (matched by name), as display-only previews. */
+function missingSeedProjects(list: Project[]): Project[] {
+  return SEED_PROJECTS.filter((s) => !list.some((p) => p.name.trim().toLowerCase() === s.name.toLowerCase())).map(
+    (s, i) => ({ ...s, id: `seed-${i}`, sortOrder: list.length + i, createdAt: '' }),
+  );
 }
 
 /** Every skill shown in the Tech skills tab: manual skills plus project languages, de-duplicated. */

@@ -44,6 +44,8 @@ export interface ContactContent {
 }
 
 export interface SiteContent {
+  /** Which one-time content upgrade (see SEED_VERSION) has been saved. */
+  seedVersion?: number;
   hero: HeroContent;
   profile: ProfileContent;
   about: AboutContent;
@@ -59,6 +61,8 @@ export interface Project {
   longDescription: string;
   languages: string[];
   images: string[];
+  /** Optional "View project" URL, e.g. an itch.io page or GitHub repo. */
+  link: string;
   sortOrder: number;
   createdAt: string;
 }

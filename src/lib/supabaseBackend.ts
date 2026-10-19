@@ -11,6 +11,7 @@ interface ProjectRow {
   long_description: string;
   languages: string[];
   images: string[];
+  link: string | null;
   sort_order: number;
   created_at: string;
 }
@@ -23,6 +24,7 @@ function fromRow(row: ProjectRow): Project {
     longDescription: row.long_description ?? '',
     languages: row.languages ?? [],
     images: row.images ?? [],
+    link: row.link ?? '',
     sortOrder: row.sort_order ?? 0,
     createdAt: row.created_at,
   };
@@ -103,6 +105,7 @@ export function createSupabaseBackend(url: string, anonKey: string): Backend {
         long_description: p.longDescription,
         languages: p.languages,
         images: p.images,
+        link: p.link,
         sort_order: p.sortOrder,
       };
       const query = p.id

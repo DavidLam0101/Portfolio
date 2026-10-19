@@ -56,3 +56,6 @@ create policy "portfolio admin update" on storage.objects for update to authenti
   using (bucket_id = 'portfolio' and public.is_admin());
 create policy "portfolio admin delete" on storage.objects for delete to authenticated
   using (bucket_id = 'portfolio' and public.is_admin());
+
+-- Added later: optional "View project" link on each project card ---------------
+alter table public.projects add column if not exists link text not null default '';

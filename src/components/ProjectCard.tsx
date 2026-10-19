@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { PROJECT_PLACEHOLDER } from '../defaults';
+import { toHref } from '../lib/image';
 import type { Project } from '../types';
-import { ChevronLeftIcon, ChevronRightIcon, PencilIcon, TrashIcon } from './Icons';
+import { ChevronLeftIcon, ChevronRightIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from './Icons';
 
 interface AdminActions {
   onEdit: () => void;
@@ -106,6 +107,11 @@ export function ProjectCard({ project, admin }: { project: Project; admin?: Admi
               <li key={l}>{l}</li>
             ))}
           </ul>
+        )}
+        {project.link?.trim() && (
+          <a className="project-link" href={toHref(project.link)} target="_blank" rel="noopener noreferrer">
+            View project <ExternalLinkIcon size={14} />
+          </a>
         )}
       </div>
 

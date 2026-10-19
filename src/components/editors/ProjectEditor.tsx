@@ -31,6 +31,7 @@ function ProjectForm({ project, onClose }: { project: Project | null; onClose: (
         longDescription: '',
         languages: [],
         images: [],
+        link: '',
         // New projects go first.
         sortOrder: projects.length ? Math.min(...projects.map((p) => p.sortOrder)) - 1 : 0,
       },
@@ -85,6 +86,9 @@ function ProjectForm({ project, onClose }: { project: Project | null; onClose: (
           value={draft.longDescription}
           onChange={(e) => setDraft({ ...draft, longDescription: e.target.value })}
         />
+      </Field>
+      <Field label="Project link (optional)" hint="Adds a “View project” button, e.g. an itch.io page, live demo or GitHub repo.">
+        <input value={draft.link ?? ''} placeholder="https://…" onChange={(e) => setDraft({ ...draft, link: e.target.value })} />
       </Field>
       <ChipInput
         label="Languages / technologies"
