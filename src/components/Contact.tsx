@@ -25,16 +25,16 @@ export function Contact() {
           </p>
         )}
         <div className="social-list">
-          <SocialLink field="github" className="social-icon">
+          <SocialLink field="github" className="social-icon social-icon--github">
             <GithubIcon size={26} />
           </SocialLink>
-          <SocialLink field="linkedin" className="social-icon">
+          <SocialLink field="linkedin" className="social-icon social-icon--linkedin">
             <LinkedinIcon size={24} />
           </SocialLink>
-          <SocialLink field="instagram" className="social-icon">
+          <SocialLink field="instagram" className="social-icon social-icon--instagram">
             <InstagramIcon size={26} />
           </SocialLink>
-          <SocialLink field="email" className="social-icon">
+          <SocialLink field="email" className="social-icon social-icon--email">
             <MailIcon size={26} />
           </SocialLink>
         </div>

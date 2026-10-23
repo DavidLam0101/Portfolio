@@ -1109,17 +1109,40 @@ a {
   width: 52px;
   height: 52px;
   border-radius: 12px;
-  background: #4a4a4f;
-  border: 1px solid #8d8d94;
-  color: #0b0b0c;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+  background: var(--brand, var(--accent));
+  border: 1px solid var(--brand, var(--accent));
+  color: #fff;
+  transition: filter 0.2s, transform 0.2s;
+}
+
+/* Each service's own brand color */
+.social-icon--github {
+  --brand: #6e40c9;
+  background: linear-gradient(135deg, #a371f7 0%, #8957e5 45%, #4c2889 100%);
+  border-color: transparent;
+}
+
+.social-icon--linkedin {
+  --brand: #0a66c2;
+  background: linear-gradient(135deg, #3b9cff 0%, #0a66c2 50%, #004182 100%);
+  border-color: transparent;
+}
+
+.social-icon--instagram {
+  --brand: #d6249f;
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+  border-color: transparent;
+}
+
+.social-icon--email {
+  --brand: #ea4335;
+  background: linear-gradient(135deg, #ff7a6b 0%, #ea4335 50%, #b3261e 100%);
+  border-color: transparent;
 }
 
 .social-icon:hover,
 .social-icon:focus-visible {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  filter: brightness(1.15);
   transform: translateY(-3px);
 }
 
